@@ -3,616 +3,731 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CTR: Road to Glory — An Adventure Story</title>
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<title>CTR: Race for Earth</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=Share+Tech+Mono&display=swap');
+
   :root {
-    --orange: #FF6B00;
-    --yellow: #FFD600;
-    --teal: #00E5FF;
-    --dark: #0A0A1A;
-    --card: #13132A;
-    --border: #2A2A4A;
-    --text: #E8E8FF;
-    --muted: #8888AA;
-    --red: #FF3B5C;
-    --green: #39FF14;
+    --bg: #0a0a14;
+    --panel: #10101e;
+    --border: #ff6b00;
+    --accent1: #ff6b00;
+    --accent2: #00e5ff;
+    --accent3: #ffe600;
+    --text: #f0eadc;
+    --muted: #888aaa;
+    --glow-o: 0 0 18px #ff6b0088, 0 0 40px #ff6b0033;
+    --glow-b: 0 0 18px #00e5ff88, 0 0 40px #00e5ff33;
+    --glow-y: 0 0 18px #ffe60088, 0 0 40px #ffe60033;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--dark);
+    background: var(--bg);
     color: var(--text);
-    font-family: 'Nunito', sans-serif;
-    font-size: 16px;
-    line-height: 1.7;
+    font-family: 'Share Tech Mono', monospace;
     min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow-x: hidden;
+    position: relative;
   }
 
+  /* Animated racetrack lines background */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background:
-      repeating-linear-gradient(180deg,
-        transparent 0px, transparent 48px,
-        rgba(255,214,0,0.04) 48px, rgba(255,214,0,0.04) 52px
-      ),
-      radial-gradient(ellipse at 50% 0%, rgba(255,107,0,0.08) 0%, transparent 70%);
+      repeating-linear-gradient(90deg, transparent 0px, transparent 58px, #ffffff06 58px, #ffffff06 60px),
+      repeating-linear-gradient(180deg, transparent 0px, transparent 58px, #ffffff04 58px, #ffffff04 60px);
     pointer-events: none;
     z-index: 0;
-    animation: roadScroll 3s linear infinite;
   }
 
-  @keyframes roadScroll {
-    from { background-position: 0 0; }
-    to   { background-position: 0 52px; }
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, #00000018 3px, #00000018 4px);
+    pointer-events: none;
+    z-index: 1;
   }
 
   #game {
     position: relative;
-    z-index: 1;
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 2rem 1.25rem 4rem;
+    z-index: 2;
+    width: 100%;
+    max-width: 760px;
+    padding: 20px;
   }
 
-  #header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
+  .passage {
+    display: none;
+    animation: fadeIn 0.4s ease;
   }
+  .passage.active { display: block; }
 
-  #header .logo {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(2rem, 8vw, 3.5rem);
-    letter-spacing: 3px;
-    background: linear-gradient(135deg, var(--orange), var(--yellow));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-  }
-
-  #header .sub {
-    font-size: 12px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--teal);
-    margin-top: 4px;
-  }
-
-  #progress-wrap {
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  #progress-bar-bg {
-    flex: 1;
-    height: 6px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  #progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--orange), var(--yellow));
-    border-radius: 99px;
-    transition: width 0.5s ease;
-    width: 0%;
-  }
-
-  #progress-label {
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    min-width: 60px;
-    text-align: right;
-  }
-
-  #passage-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
-    animation: fadeSlide 0.35s ease;
-  }
-
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateY(14px); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .passage-tag {
-    display: inline-block;
-    font-size: 10px;
-    letter-spacing: 3px;
+  /* Header strip */
+  .game-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .game-header .logo {
+    font-family: 'Bungee Shade', cursive;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    color: var(--accent1);
+    text-shadow: var(--glow-o);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .game-header .sub {
+    font-size: 0.75rem;
+    color: var(--accent2);
+    letter-spacing: 6px;
     text-transform: uppercase;
-    color: var(--orange);
-    border: 1px solid rgba(255,107,0,0.3);
-    border-radius: 99px;
-    padding: 2px 10px;
-    margin-bottom: 1rem;
+    margin-top: 4px;
+    text-shadow: var(--glow-b);
   }
 
-  .passage-tag.ending { color: var(--yellow); border-color: rgba(255,214,0,0.3); }
-  .passage-tag.action { color: var(--teal); border-color: rgba(0,229,255,0.3); }
-
-  #passage-title {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(1.5rem, 5vw, 2.2rem);
-    letter-spacing: 1.5px;
-    color: var(--yellow);
-    margin-bottom: 1rem;
-    line-height: 1.15;
+  /* Passage title */
+  .ptitle {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(1.2rem, 3.5vw, 1.7rem);
+    color: var(--accent3);
+    text-shadow: var(--glow-y);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent1);
+    letter-spacing: 1px;
   }
 
-  #passage-text {
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.8;
+  /* Content box */
+  .pbox {
+    background: var(--panel);
+    border: 1px solid #ff6b0044;
+    border-left: 3px solid var(--accent1);
+    padding: 22px 26px;
+    margin-bottom: 24px;
+    line-height: 1.75;
+    font-size: 0.97rem;
+    position: relative;
+    box-shadow: inset 0 0 30px #00000033, var(--glow-o);
+  }
+  .pbox::before {
+    content: '▶️';
+    position: absolute;
+    top: 20px;
+    left: -18px;
+    color: var(--accent1);
+    font-size: 1.1rem;
+    text-shadow: var(--glow-o);
   }
 
-  #passage-text p { margin-bottom: 0.9rem; }
-  #passage-text p:last-child { margin-bottom: 0; }
+  .pbox p + p { margin-top: 12px; }
 
-  #choices {
-    margin-top: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  em { color: var(--accent2); font-style: normal; font-weight: bold; }
+  strong { color: var(--accent3); }
+
+  /* Choices */
+  .choices { display: flex; flex-direction: column; gap: 12px; }
 
   .choice-btn {
     background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 18px;
+    border: 1px solid var(--accent1);
     color: var(--text);
-    font-family: 'Nunito', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    padding: 14px 20px;
     text-align: left;
-    transition: all 0.2s;
+    cursor: pointer;
     position: relative;
-    padding-left: 44px;
+    transition: all 0.18s ease;
+    line-height: 1.4;
   }
-
   .choice-btn::before {
-    content: '▶️';
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--orange);
-    font-size: 10px;
-    transition: transform 0.2s;
+    content: '→ ';
+    color: var(--accent1);
+    font-weight: bold;
   }
-
   .choice-btn:hover {
-    border-color: var(--orange);
-    background: rgba(255,107,0,0.08);
-    color: var(--yellow);
+    background: #ff6b0018;
+    border-color: var(--accent3);
+    color: var(--accent3);
+    box-shadow: var(--glow-o);
     transform: translateX(4px);
   }
+  .choice-btn:hover::before { color: var(--accent3); }
 
-  .choice-btn:hover::before { transform: translateY(-50%) translateX(3px); }
-  .choice-btn:active { transform: translateX(2px) scale(0.99); }
+  .choice-btn.blue {
+    border-color: var(--accent2);
+  }
+  .choice-btn.blue::before { color: var(--accent2); }
+  .choice-btn.blue:hover {
+    background: #00e5ff18;
+    border-color: var(--accent2);
+    color: var(--accent2);
+    box-shadow: var(--glow-b);
+  }
 
-  .ending-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    margin-bottom: 1.25rem;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
+  /* Ending box */
+  .ending-box {
+    background: #0a0a14;
+    border: 2px solid var(--accent3);
+    padding: 20px 24px;
+    margin-top: 20px;
+    text-align: center;
+    box-shadow: var(--glow-y);
+  }
+  .ending-label {
+    font-family: 'Bungee', cursive;
+    font-size: 0.75rem;
+    letter-spacing: 6px;
+    color: var(--accent3);
     text-transform: uppercase;
+    margin-bottom: 8px;
   }
-
-  .ending-badge.good    { background: rgba(57,255,20,0.1);  color: var(--green);  border: 1px solid rgba(57,255,20,0.25); }
-  .ending-badge.neutral { background: rgba(0,229,255,0.1);  color: var(--teal);   border: 1px solid rgba(0,229,255,0.25); }
-  .ending-badge.hollow  { background: rgba(255,59,92,0.1);  color: var(--red);    border: 1px solid rgba(255,59,92,0.25); }
-  .ending-badge.endless { background: rgba(255,214,0,0.1);  color: var(--yellow); border: 1px solid rgba(255,214,0,0.25); }
-
-  .ending-icon { font-size: 20px; }
-
-  #restart-btn {
-    margin-top: 1.5rem;
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--orange), #FF4500);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-family: 'Bangers', cursive;
-    font-size: 1.3rem;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
+  .ending-title {
+    font-family: 'Bungee', cursive;
+    font-size: 1.5rem;
+    color: var(--accent1);
+    text-shadow: var(--glow-o);
+    margin-bottom: 10px;
   }
-
-  #restart-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-
-  #breadcrumb {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 1rem;
-    min-height: 22px;
-  }
-
-  .crumb {
-    font-size: 10px;
+  .ending-desc {
+    font-size: 0.9rem;
     color: var(--muted);
-    background: rgba(255,255,255,0.04);
-    border-radius: 99px;
-    padding: 2px 8px;
+    line-height: 1.6;
+    margin-bottom: 16px;
   }
 
-  #stats {
+  .restart-btn {
+    background: var(--accent1);
+    border: none;
+    color: #000;
+    font-family: 'Bungee', cursive;
+    font-size: 0.9rem;
+    padding: 12px 28px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.18s;
+    box-shadow: var(--glow-o);
+  }
+  .restart-btn:hover {
+    background: var(--accent3);
+    box-shadow: var(--glow-y);
+    transform: scale(1.05);
+  }
+
+  /* Progress bar */
+  .progress-strip {
     display: flex;
-    gap: 16px;
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .progress-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .prog-dot {
+    width: 10px; height: 10px;
+    border: 1px solid var(--muted);
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+  .prog-dot.lit {
+    background: var(--accent1);
+    border-color: var(--accent1);
+    box-shadow: var(--glow-o);
   }
 
-  .stat { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
-  .stat-icon { font-size: 14px; }
-  .stat-val { color: var(--yellow); font-weight: 700; }
-
-  @keyframes spin3d {
-    from { transform: rotateY(0deg); }
-    to   { transform: rotateY(360deg); }
+  /* Flavor tags */
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    margin-bottom: 10px;
+    border-radius: 2px;
   }
-  .trophy-spin { display: inline-block; animation: spin3d 1.5s linear infinite; }
+  .tag-hub  { background: #ff6b0022; color: var(--accent1); border: 1px solid var(--accent1); }
+  .tag-race { background: #00e5ff22; color: var(--accent2); border: 1px solid var(--accent2); }
+  .tag-boss { background: #ffe60022; color: var(--accent3); border: 1px solid var(--accent3); }
+
+  /* Speed lines decoration */
+  .speed-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent1), transparent);
+    margin: 18px 0;
+    opacity: 0.4;
+  }
+
+  /* Responsive */
+  @media (max-width: 540px) {
+    .pbox { padding: 16px 18px; }
+    .choice-btn { font-size: 0.85rem; padding: 12px 14px; }
+  }
 </style>
 </head>
 <body>
-
+<div class="scanlines"></div>
 <div id="game">
-  <div id="header">
-    <div class="logo">CTR: Road to Glory</div>
-    <div class="sub">A Crash Team Racing Adventure · Interactive Story</div>
+  <div class="game-header">
+    <div class="logo">CTR: RACE FOR EARTH</div>
+    <div class="sub">A Twine Story · Adventure Mode</div>
+  </div>
+  <div class="progress-strip">
+    <span class="progress-label">Progress</span>
+    <div class="prog-dot" id="pd1"></div>
+    <div class="prog-dot" id="pd2"></div>
+    <div class="prog-dot" id="pd3"></div>
+    <div class="prog-dot" id="pd4"></div>
+    <div class="prog-dot" id="pd5"></div>
+    <div class="prog-dot" id="pd6"></div>
   </div>
 
-  <div id="progress-wrap">
-    <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
-    <div id="progress-label">Passage 1</div>
+  <!-- ===== PASSAGE 1: INTRO ===== -->
+  <div class="passage active" id="p-intro">
+    <div class="ptitle">🛸 Alien Ultimatum</div>
+    <span class="tag tag-hub">Hub World · Opening</span>
+    <div class="pbox">
+      <p>A shadow falls across every racetrack on Earth. The alien racer <em>Nitros Oxide</em> descends from orbit in his saucer, broadcasting a challenge on every frequency:</p>
+      <p><strong>"Earthlings! I am the fastest being in the universe. Race me — and WIN — or I turn your miserable planet into a parking lot!"</strong></p>
+      <p>The world's greatest racers gather. Crash, Coco, Cortex, Dingodile — all of them stare at the starting line. Then they stare at you.</p>
+      <p>You buckle your helmet. You've raced every track, dodged every missile, perfected every drift. This is your moment.</p>
+      <p>But the question isn't <em>whether</em> you'll race Oxide. It's <em>how</em>.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-approach')">Step forward and decide your strategy</button>
+    </div>
   </div>
 
-  <div id="breadcrumb"></div>
-  <div id="passage-card"></div>
+  <!-- ===== PASSAGE 2: APPROACH CHOICE ===== -->
+  <div class="passage" id="p-approach">
+    <div class="ptitle">⚑ Decision Point 1 — Your Approach</div>
+    <span class="tag tag-hub">Hub World · Strategy</span>
+    <div class="pbox">
+      <p>Oxide has set a condition: collect <strong>four trophies</strong> from across the hub worlds to earn the right to face him. Nothing more is required.</p>
+      <p>But scattered across every track are <em>relics</em>, <em>CTR tokens</em>, and hidden time trials — challenges that push every racer to the absolute limit.</p>
+      <p>You weigh your options. The planet's fate hangs in the balance, but so does your legacy.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-trophy-focus')">Race fast — grab the four trophies and face Oxide now</button>
+      <button class="choice-btn blue" onclick="goto('p-complete-route')">Go full completionist — master every challenge first</button>
+    </div>
+  </div>
+
+  <!-- ============================= -->
+  <!--  PATH A: TROPHY FOCUS         -->
+  <!-- ============================= -->
+
+  <!-- PASSAGE 3A: Trophy Focus -->
+  <div class="passage" id="p-trophy-focus">
+    <div class="ptitle">🏆 Trophy Focus — The Fast Lane</div>
+    <span class="tag tag-race">Gem Cup · N. Sanity Beach</span>
+    <div class="pbox">
+      <p>You tear through the first hub world, <em>N. Sanity Beach</em>, ignoring the relic ghosts haunting side passages and the token challenges blinking from the cliff faces.</p>
+      <p>First trophy. Then second. You're in the zone — no distractions, no detours. The other racers watch you blur past with a mix of admiration and concern.</p>
+      <p>By the time you arrive at the <strong>Glacier Park</strong> hub, you've collected three trophies and Oxide's arena is blinking on your map. One more cup to go.</p>
+      <p>But something nags at you. You notice a set of <em>relic pads</em> glowing at the entrance to an ancient track. It would only take a few extra minutes…</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-rush-oxide')">Ignore the relics — charge straight to the fourth trophy and challenge Oxide</button>
+      <button class="choice-btn blue" onclick="goto('p-trophy-detour')">Do a quick detour: grab the relics before the final trophy race</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE 4A: Rush to Oxide -->
+  <div class="passage" id="p-rush-oxide">
+    <div class="ptitle">🚀 No Looking Back</div>
+    <span class="tag tag-race">Glacier Park · Final Trophy</span>
+    <div class="pbox">
+      <p>You shake off the temptation. Earth needs saving <em>now</em>. You blast through the final cup race, drifting every corner perfectly, boosting through every shortcut.</p>
+      <p>Fourth trophy secured. Oxide's challenge portal <strong>opens with a blinding flash</strong>.</p>
+      <p>You gun the engine and drive straight into it.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-oxide-race-a')">Race Nitros Oxide on the Oxide Station track</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE 5A: Oxide Race (Path A) -->
+  <div class="passage" id="p-oxide-race-a">
+    <div class="ptitle">👾 Final Race — Oxide Station</div>
+    <span class="tag tag-boss">Boss Race · Nitros Oxide</span>
+    <div class="pbox">
+      <p>Oxide's circuit is a nightmare — anti-gravity banks, plasma beams, and a track surface slicker than ice. His kart is powered by alien technology you've never seen.</p>
+      <p>You're good. You're really good. But <em>you haven't practiced the precision turns</em> that deep relic runs would've sharpened.</p>
+      <p>The race is brutal. Oxide leads for two full laps. On the final stretch, you find one last burst of speed — a desperate power slide that sends you across the finish line just inches ahead.</p>
+      <p><strong>You win.</strong> Barely.</p>
+      <p>Oxide sputters. His saucer retreats. Earth is safe.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-end-hollow')">See your ending</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Trophy Detour (Decision Point 2B under Path A) -->
+  <div class="passage" id="p-trophy-detour">
+    <div class="ptitle">⏱ Quick Relic Run</div>
+    <span class="tag tag-race">Side Challenge · Glacier Park</span>
+    <div class="pbox">
+      <p>You swing off the main route and hit the relic pad. The ghost of a previous racer shimmers ahead — you have to beat their time across the track while avoiding crates.</p>
+      <p>Two relics. Three. You find your rhythm and snag a <strong>Platinum Relic</strong> — something you didn't expect. The side tunnel spits you back out near the trophy race entrance, sharper and faster than before.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-trophy-train')">Use this momentum — keep training before challenging Oxide</button>
+      <button class="choice-btn blue" onclick="goto('p-oxide-race-a')">You're warmed up — head straight to Oxide now</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Trophy Train (Decision Point 3 under Path A expanded branch) -->
+  <div class="passage" id="p-trophy-train">
+    <div class="ptitle">🔥 Decision Point 3 — Sharpen Your Edge</div>
+    <span class="tag tag-race">Time Trials · Multiple Tracks</span>
+    <div class="pbox">
+      <p>You spend the next stretch running time trials on the tracks you rushed through earlier. Each lap teaches you something new — a hidden shortcut here, a perfect drift angle there.</p>
+      <p>The other racers clock your improvement. Even Coco nods in grudging respect.</p>
+      <p>You've now beaten three track ghosts and earned two extra relics. Your kart feels <em>dialed in</em>. But Oxide is waiting, and every hour you train is an hour his saucer looms overhead.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-oxide-race-b')">You've done enough — challenge Oxide now</button>
+      <button class="choice-btn blue" onclick="goto('p-trophy-overconfident')">Push harder — grind until you feel truly unbeatable</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Overconfident grind (Path A expanded leaf) -->
+  <div class="passage" id="p-trophy-overconfident">
+    <div class="ptitle">⚠ Too Much of a Good Thing</div>
+    <span class="tag tag-race">Late Training · Fatigue</span>
+    <div class="pbox">
+      <p>Hours blur together. You run the same tracks over and over, chasing ghost times that keep getting shorter by milliseconds.</p>
+      <p>When you finally enter Oxide's portal, your wrists are stiff and your focus is frayed. The race starts — you're fast, technically perfect — but <em>the spark is gone</em>.</p>
+      <p>You win on muscle memory alone. Oxide is beaten. Earth is saved. But you don't feel joy — just exhaustion.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-end-burnout')">See your ending</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Oxide Race B (trained, but not full) -->
+  <div class="passage" id="p-oxide-race-b">
+    <div class="ptitle">👾 Final Race — Oxide Station (Prepared)</div>
+    <span class="tag tag-boss">Boss Race · Nitros Oxide</span>
+    <div class="pbox">
+      <p>The portal opens. Oxide grins from behind his visor — six eyes gleaming with contempt.</p>
+      <p>The race is everything you prepared for. Hard banks. Plasma walls. Invisible boost pads that only reveal themselves to racers who've studied the track.</p>
+      <p>You studied. You know exactly where to cut the corners. You hit every boost perfectly. Oxide pushes back on lap three, unleashing a burst of alien speed — but your extra relic training shaved just enough off your lap times.</p>
+      <p><strong>You cross the line. Champion.</strong> It wasn't easy. But it was <em>earned</em>.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-end-narrow')">See your ending</button>
+    </div>
+  </div>
+
+  <!-- ============================= -->
+  <!--  PATH B: COMPLETIONIST        -->
+  <!-- ============================= -->
+
+  <!-- PASSAGE 3B: Complete Route -->
+  <div class="passage" id="p-complete-route">
+    <div class="ptitle">🗺 Completionist Route — Every Challenge</div>
+    <span class="tag tag-hub">Hub World · Deep Dive</span>
+    <div class="pbox">
+      <p>You don't just race. You <em>hunt</em>. Relic pads. Token challenges. Hidden warp rooms. Crystal caves. You methodically work through every corner of every hub world.</p>
+      <p>Days pass. You collect relics from <strong>Papu's Pyramid</strong>, earn all three tokens on <strong>Dingo Canyon</strong>, discover the secret shortcut in <strong>Cortex Castle</strong>.</p>
+      <p>The other racers are impressed. Some join you for extra laps. Oxide, watching from orbit, seems… unsettled.</p>
+      <p>You've gathered trophies, relics, and a bag of rare CTR tokens. Now a new door appears in the hub world — a hidden warp room unlocked only by those who truly explored.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-warp-room')">Enter the secret warp room</button>
+      <button class="choice-btn blue" onclick="goto('p-complete-choice2')">Skip the warp room — face Oxide now</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Secret Warp Room (Decision Point 2B) -->
+  <div class="passage" id="p-warp-room">
+    <div class="ptitle">🌀 The Secret Warp Room</div>
+    <span class="tag tag-hub">Hidden Area · Bonus Tracks</span>
+    <div class="pbox">
+      <p>The warp room hums with strange energy. Three bonus tracks pulse on the teleporters — tracks that don't appear in any standard cup. These are the <em>developer's trials</em>, the hidden gauntlet left for only the most devoted racers.</p>
+      <p>You step up to the first pad. A skull icon flashes. These tracks are <strong>brutal</strong>.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-warp-all-three')">Race all three hidden tracks</button>
+      <button class="choice-btn blue" onclick="goto('p-warp-one')">Race one track, then head to Oxide</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Warp — Race One -->
+  <div class="passage" id="p-warp-one">
+    <div class="ptitle">💎 One Last Trial</div>
+    <span class="tag tag-race">Bonus Track · One Clear</span>
+    <div class="pbox">
+      <p>You choose the hardest-looking track and run it once. It's a twisted, narrow circuit with bouncing TNT crates and walls that <em>breathe</em>. You barely survive. But you finish first.</p>
+      <p>A gem glints on the finish line — a <strong>hidden gem</strong>, the rarest collectible. You pocket it. Time to end this.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-oxide-race-c')">Challenge Nitros Oxide — you're ready</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Warp — All Three -->
+  <div class="passage" id="p-warp-all-three">
+    <div class="ptitle">🏅 Decision Point 4 — The Full Gauntlet</div>
+    <span class="tag tag-race">Bonus Tracks · Three Clears</span>
+    <div class="pbox">
+      <p>Three tracks. Three victories. You survive lava fields, underwater caverns, and a track that loops through the inside of a crashed spaceship.</p>
+      <p>After the third finish line, the warp room glows gold. An <em>extra key</em> appears — a reward for completing the full gauntlet. You hold it up. It hums.</p>
+      <p>Back in the hub, you notice one last door. A door nobody else opened. The key fits.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-true-arena')">Open the door and face the True Arena before Oxide</button>
+      <button class="choice-btn blue" onclick="goto('p-oxide-race-c')">You've proven enough — go challenge Oxide directly</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: True Arena -->
+  <div class="passage" id="p-true-arena">
+    <div class="ptitle">⚡ The True Arena</div>
+    <span class="tag tag-boss">Hidden Challenge · Final Test</span>
+    <div class="pbox">
+      <p>Inside the door is a single track — unmarked on any map. No ghost. No timer. Just you and a nameless racer in a pitch-black kart.</p>
+      <p>Three laps. The nameless racer matches every move you make. Drafts every drift. Mirrors every boost.</p>
+      <p>On the final corner, you find something you didn't know you had — a line nobody taught you. A perfect, improvised apex that shaves a fraction of a second. <em>It's enough.</em></p>
+      <p>The black kart stops. The arena goes silent. You exhale.</p>
+      <p>You are ready for Oxide. You are ready for anything.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-oxide-race-final')">Enter Oxide's portal — claim your destiny</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Complete Choice 2 (Skip warp) -->
+  <div class="passage" id="p-complete-choice2">
+    <div class="ptitle">⏩ Decision Point 2 — Ready Enough?</div>
+    <span class="tag tag-hub">Hub World · Pre-Boss</span>
+    <div class="pbox">
+      <p>You've collected relics from eight tracks, all three CTR tokens on six circuits, and won every trophy cup. Oxide's portal glows ahead.</p>
+      <p>But glancing at your stats screen, you notice your <em>best lap times</em> are still a few tenths off the world records. A nagging voice asks: <em>is this enough?</em></p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-oxide-race-c')">Yes — drive into the portal and race Oxide</button>
+      <button class="choice-btn blue" onclick="goto('p-endless-search')">No — keep chasing perfection a little longer</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Endless search -->
+  <div class="passage" id="p-endless-search">
+    <div class="ptitle">🔁 The Endless Loop</div>
+    <span class="tag tag-race">Perfection Spiral</span>
+    <div class="pbox">
+      <p>You tell yourself: <em>just one more relic. Just one more token. Just one better lap time.</em></p>
+      <p>A week passes. Two weeks. Oxide's portal still glows. The other racers urge you to go.</p>
+      <p>You can't. There's always something slightly better you could do. Another tenth of a second. Another gem shard. The game never truly ends — and neither, it seems, do you.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-end-endless')">See your ending</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Oxide Race C (Completionist) -->
+  <div class="passage" id="p-oxide-race-c">
+    <div class="ptitle">👾 Final Race — Oxide Station (Veteran)</div>
+    <span class="tag tag-boss">Boss Race · Nitros Oxide</span>
+    <div class="pbox">
+      <p>Every track you've mastered has led to this moment. Oxide sneers as your kart lines up. He clearly underestimates you.</p>
+      <p>That is his mistake.</p>
+      <p>You read every corner before it arrives. Your muscle memory handles the plasma banks while your mind stays calm. When Oxide unleashes his alien boost, you've already prepared your counter — a perfect draft that slingshots you ahead.</p>
+      <p>Lap three. Final straight. You're <em>three kart lengths ahead</em>. Oxide screams in fury. You cross the line.</p>
+      <p><strong>Earth is saved. You are its champion.</strong></p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-end-true')">See your ending</button>
+    </div>
+  </div>
+
+  <!-- PASSAGE: Oxide Race FINAL (True Arena path) -->
+  <div class="passage" id="p-oxide-race-final">
+    <div class="ptitle">🌟 Final Race — Oxide Station (Legendary)</div>
+    <span class="tag tag-boss">Boss Race · Nitros Oxide</span>
+    <div class="pbox">
+      <p>The portal opens onto Oxide's station — gleaming chrome, crackling plasma walls, the hum of alien engines.</p>
+      <p>Oxide takes one look at your kart. His six eyes narrow. <em>He feels it.</em> The quiet certainty radiating from your posture. He has faced champions before. He has never faced this.</p>
+      <p>You race. Every corner is a brushstroke. Every drift is a sentence. The True Arena taught you the line nobody knows, and you use it twice — once on lap one, once on lap three, where it matters most.</p>
+      <p>Oxide's alien boost fires. He's still two seconds behind.</p>
+      <p>You cross the finish line. The station goes silent. Oxide's saucer hangs motionless. Then, slowly, it turns and departs.</p>
+      <p><em>No words. No argument. Just acknowledgment.</em></p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="goto('p-end-legend')">See your ending</button>
+    </div>
+  </div>
+
+  <!-- ============================= -->
+  <!--  ENDINGS                      -->
+  <!-- ============================= -->
+
+  <!-- ENDING A: Hollow Victory -->
+  <div class="passage" id="p-end-hollow">
+    <div class="ptitle">🏁 The End</div>
+    <div class="pbox">
+      <p>The world erupts in celebration. Streamers fall. Crowds cheer. Oxide's saucer retreats into the stars.</p>
+      <p>You stand on the podium, trophy in hand. But your eyes drift to the hub worlds — the relic pads still glowing, the token challenges still unclaimed. The game isn't finished. <em>You</em> aren't finished.</p>
+      <p>But the planet is safe, and sometimes that's enough.</p>
+    </div>
+    <div class="ending-box">
+      <div class="ending-label">Ending A</div>
+      <div class="ending-title">Hollow Victory</div>
+      <div class="ending-desc">You saved the Earth, but you know the full story wasn't told. The relics and tokens remain, waiting. Maybe someday you'll go back.</div>
+      <button class="restart-btn" onclick="restart()">▶️ RACE AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ENDING B: Narrow Champion -->
+  <div class="passage" id="p-end-narrow">
+    <div class="ptitle">🏁 The End</div>
+    <div class="pbox">
+      <p>The crowd goes wild. You climbed into that final race a little more prepared than you were an hour ago — and it made all the difference.</p>
+      <p>Oxide doesn't stay to argue. He's never lost by less. He'll be back, you think. And when he is, you'll be ready.</p>
+    </div>
+    <div class="ending-box">
+      <div class="ending-label">Ending B</div>
+      <div class="ending-title">Narrow Champion</div>
+      <div class="ending-desc">You detoured just enough to sharpen your edge — and crossed the line by the skin of your teeth. A victory built from last-minute preparation.</div>
+      <button class="restart-btn" onclick="restart()">▶️ RACE AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ENDING C: True Champion -->
+  <div class="passage" id="p-end-true">
+    <div class="ptitle">🏁 The End</div>
+    <div class="pbox">
+      <p>When the celebration dies down, the other racers tell the story of how you beat Oxide. They talk about your relics. Your tokens. The tracks you ran alone at dawn.</p>
+      <p>You didn't just win. You <em>mastered</em> the game. Every corner, every shortcut, every secret. Earth was never truly at risk — because you were always going to be ready.</p>
+    </div>
+    <div class="ending-box">
+      <div class="ending-label">Ending C</div>
+      <div class="ending-title">True Champion</div>
+      <div class="ending-desc">Completionist and conqueror. You finished what the game was truly asking of you, and Oxide never stood a chance.</div>
+      <button class="restart-btn" onclick="restart()">▶️ RACE AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ENDING D: Endless Challenger -->
+  <div class="passage" id="p-end-endless">
+    <div class="ptitle">🏁 The End</div>
+    <div class="pbox">
+      <p>Oxide eventually leaves. Not because you beat him — but because he got bored waiting.</p>
+      <p>Earth is saved by default. You're still on track four, chasing a ghost timer by eight milliseconds.</p>
+      <p>The other racers wave goodbye. You don't notice. You're restarting the lap.</p>
+    </div>
+    <div class="ending-box">
+      <div class="ending-label">Ending D</div>
+      <div class="ending-title">Endless Challenger</div>
+      <div class="ending-desc">Perfection is a horizon — always visible, never reachable. You chose the journey over the destination, and the journey never ends.</div>
+      <button class="restart-btn" onclick="restart()">▶️ RACE AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ENDING E: Burnout -->
+  <div class="passage" id="p-end-burnout">
+    <div class="ptitle">🏁 The End</div>
+    <div class="pbox">
+      <p>You win. Of course you win. You know every track by heart at this point. Oxide puts up a decent fight.</p>
+      <p>But standing on the podium, all you feel is the ache in your hands and a deep desire to <em>never see a racetrack again</em>.</p>
+      <p>You hang up your helmet for a month. When you come back, the tracks feel new again. Maybe that's the real lesson.</p>
+    </div>
+    <div class="ending-box">
+      <div class="ending-label">Ending E</div>
+      <div class="ending-title">Burnout</div>
+      <div class="ending-desc">You over-prepared until the joy drained away. Victory tasted like nothing. Sometimes knowing when to stop is the hardest skill of all.</div>
+      <button class="restart-btn" onclick="restart()">▶️ RACE AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ENDING F: Legend -->
+  <div class="passage" id="p-end-legend">
+    <div class="ptitle">🏁 The End</div>
+    <div class="pbox">
+      <p>They will tell this story for generations. Not just that you beat Oxide — but <em>how</em>. The hidden door. The nameless arena. The line nobody knew.</p>
+      <p>Crash hangs a banner in the hub world. <em>"Earth's Racer."</em> No name needed. Just the legend.</p>
+      <p>Oxide's broadcast frequency, still active, transmits one final message across the galaxy: <em>"This planet is not to be touched."</em></p>
+    </div>
+    <div class="ending-box">
+      <div class="ending-label">Ending F</div>
+      <div class="ending-title">Legend of Earth</div>
+      <div class="ending-desc">The rarest ending. You found the hidden path, conquered the secret arena, and achieved something no alien ever expected: a racer who transcended the game itself.</div>
+      <button class="restart-btn" onclick="restart()">▶️ RACE AGAIN</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
-const story = {
-  start: "intro",
-  passages: {
+  const progressMap = {
+    'p-intro': 1,
+    'p-approach': 2,
+    'p-trophy-focus': 3,
+    'p-complete-route': 3,
+    'p-rush-oxide': 4,
+    'p-trophy-detour': 4,
+    'p-complete-choice2': 4,
+    'p-warp-room': 4,
+    'p-warp-one': 5,
+    'p-warp-all-three': 5,
+    'p-trophy-train': 5,
+    'p-trophy-overconfident': 5,
+    'p-true-arena': 5,
+    'p-endless-search': 5,
+    'p-oxide-race-a': 5,
+    'p-oxide-race-b': 5,
+    'p-oxide-race-c': 5,
+    'p-oxide-race-final': 5,
+    'p-end-hollow': 6,
+    'p-end-narrow': 6,
+    'p-end-true': 6,
+    'p-end-endless': 6,
+    'p-end-burnout': 6,
+    'p-end-legend': 6
+  };
 
-    intro: {
-      title: "An Alien Ultimatum",
-      tag: "opening",
-      text: `<p>A massive spacecraft casts a shadow over Earth's greatest racetrack. The speakers crackle. A rasping, arrogant voice fills the air:</p>
-<p><em>"I am Nitros Oxide — the fastest racer in the galaxy. If no one on this mudball planet can defeat me, I will pave it flat and turn it into the galaxy's largest parking lot."</em></p>
-<p>The crowd goes silent. Then, a kart engine roars to life. <strong>Yours.</strong></p>
-<p>You grip the wheel. The trophy cup glints in the alien light overhead. If someone's going to save Earth, it might as well be you.</p>`,
-      choices: [{ text: "Enter the racing tournament", to: "hub_world" }]
-    },
-
-    hub_world: {
-      title: "The Hub Worlds Await",
-      tag: "decision",
-      text: `<p>You arrive at the racing hub — a crossroads connecting four distinct worlds: the sandy Gem Stone Valley, the icy Polar Pass, the spooky Spooky Speedway, and the volcanic Hot Air Skyway.</p>
-<p>Each world holds <strong>trophy races</strong>, <strong>relic challenges</strong>, and <strong>hidden tokens</strong>. You need trophies to unlock the final race against Oxide — but you could also aim for total mastery.</p>
-<p>Two racers approach you. Polar speaks first: <em>"You've got enough trophies to challenge Oxide if you win just the main races. Fast track to glory."</em></p>
-<p>Pura pads up: <em>"Or you could earn every relic and token. When you face Oxide, you'll be unbeatable."</em></p>
-<p><strong>How will you approach the challenge?</strong></p>`,
-      choices: [
-        { text: "Race quickly — collect only what I need to face Oxide", to: "trophy_focus" },
-        { text: "Complete every challenge — relics, tokens, everything", to: "completionist_start" }
-      ]
-    },
-
-    trophy_focus: {
-      title: "Full Speed Ahead",
-      tag: "action",
-      text: `<p>You push your kart to its limit across the main tracks. Gem Stone Valley — done. Polar Pass — done. You're flying through the races, collecting trophies at every finish line.</p>
-<p>There are relic hourglasses sitting on pedestals as you cross each track — tempting, glittering — but you zoom past them. No time.</p>
-<p>By the time you clear Hot Air Skyway, you have <strong>enough trophies to unlock Oxide Station</strong>. The final gate swings open.</p>
-<p>You pause at the entrance. Your kart is fast — you've proven that. But is fast enough... enough?</p>`,
-      choices: [
-        { text: "Head straight to Oxide Station — challenge him now", to: "oxide_rush" },
-        { text: "Do a few relic challenges before the final race", to: "trophy_side_relics" }
-      ],
-      addStats: { trophies: 4 }
-    },
-
-    oxide_rush: {
-      title: "The Gates of Oxide Station",
-      tag: "action",
-      text: `<p>Oxide Station is unlike any track you've seen — zero gravity loops, laser grid shortcuts, a finish line floating in orbit.</p>
-<p>Nitros Oxide lowers himself from his personal racer and looks at you with contempt. <em>"You came directly? No relics? No tokens? You're either confident or foolish."</em></p>
-<p>The race begins. You're keeping pace — barely. Oxide uses every dirty trick: missiles, shield boosts, a devastating turbo blast on the final straight.</p>
-<p>You're in second place heading into the last corner. You have one move left.</p>`,
-      choices: [
-        { text: "Risk everything on a daring power slide to overtake", to: "ending_hollow" },
-        { text: "Play it safe and accept second place", to: "oxide_second" }
-      ],
-      addStats: { trophies: 1 }
-    },
-
-    oxide_second: {
-      title: "A Respectable Second",
-      tag: "action",
-      text: `<p>You cross the finish line second. Oxide wins — but barely. He floats down, grinning.</p>
-<p><em>"You are... surprisingly capable for a mud-dweller. But second is second."</em></p>
-<p>He begins to power up his parking lot beam. You have seconds to decide.</p>`,
-      choices: [
-        { text: "Demand a rematch immediately", to: "ending_hollow" },
-        { text: "Accept defeat and go train harder", to: "trophy_side_relics" }
-      ]
-    },
-
-    trophy_side_relics: {
-      title: "Last-Minute Training",
-      tag: "action",
-      text: `<p>You pull back from Oxide Station and return to the tracks you blazed through. The relic trials are brutal — each one a time attack where you smash numbered crates in order against a punishing clock.</p>
-<p>You fail the first relic run three times. Then something clicks. You learn the track's rhythm — where to slide, where to boost, where to cut.</p>
-<p>You earn <strong>three sapphire relics</strong>. You also find a hidden wumpa token cache near a waterfall in Gem Stone Valley — a burst of confidence you didn't know you needed.</p>
-<p>Ready. You turn back toward Oxide Station.</p>`,
-      choices: [
-        { text: "Face Nitros Oxide — you're prepared now", to: "oxide_prepared" }
-      ],
-      addStats: { relics: 3, tokens: 1 }
-    },
-
-    oxide_prepared: {
-      title: "Back at Oxide Station",
-      tag: "action",
-      text: `<p>This time Oxide seems surprised. <em>"You went back to train? Interesting."</em></p>
-<p>The race starts and you feel the difference immediately. Your lines are tighter. Your slides are smoother. When Oxide launches a missile, you cut low and dodge without losing pace.</p>
-<p>You hit the final straight neck-and-neck. The finish line appears. You throw everything into one last turbo boost —</p>`,
-      choices: [
-        { text: "Cross the finish line first!", to: "ending_narrow" }
-      ]
-    },
-
-    completionist_start: {
-      title: "The Long Road to Mastery",
-      tag: "action",
-      text: `<p>You decide: if you're going to save Earth, you're going to do it properly.</p>
-<p>You dominate the trophy races, then revisit each track for relic trials — smashing crates against the clock until your times are gold.</p>
-<p>Deep in Polar Pass, you discover icy shortcuts. In Spooky Speedway, a ghost driver gives you a cryptic hint: <em>"He always drifts left on the final turn. Always."</em></p>
-<p>You're building something most racers never achieve — <strong>total understanding</strong> of every track.</p>`,
-      choices: [
-        { text: "Push into the Wumpa Coin token hunts", to: "token_hunt" },
-        { text: "Take on the CTR Challenge — collect C, T, R letters in each race", to: "ctr_challenge" }
-      ],
-      addStats: { trophies: 4, relics: 5 }
-    },
-
-    token_hunt: {
-      title: "The Token Trails",
-      tag: "action",
-      text: `<p>The colored gem tokens are scattered across each world — some obvious, some hidden behind false walls and underwater tunnels.</p>
-<p>In Gem Stone Valley, you find a glittering red gem beneath a bridge nobody uses. In Hot Air Skyway, a purple gem floats at the edge of a death-drop — you snatch it mid-air off a ramp.</p>
-<p>You're having real fun — not just racing to win, but racing to <em>explore</em>.</p>`,
-      choices: [
-        { text: "Now tackle the CTR Challenge letters on each track", to: "ctr_challenge" },
-        { text: "You feel ready — go face Oxide", to: "oxide_mastery_approach" }
-      ],
-      addStats: { tokens: 8 }
-    },
-
-    ctr_challenge: {
-      title: "C · T · R",
-      tag: "action",
-      text: `<p>The CTR Challenge demands you collect the letters C, T, and R scattered across each track — while still winning the race. One missed letter means starting over.</p>
-<p>It's the hardest thing you've attempted. The first track takes you eleven tries. The second takes four. By the third, you've memorized every letter's location and the fastest route between them.</p>
-<p>You also face the <strong>boss laps</strong> — Oxide's lieutenants who race you on their home tracks. Ripper Roo's bouncing is maddening. Papu Papu's kart is enormous. Komodo Joe is relentless.</p>
-<p>You beat them all.</p>
-<p>By the time you hold every CTR coin, you're not just fast anymore. You're <em>precise.</em></p>`,
-      choices: [
-        { text: "You've mastered everything — time to face Oxide", to: "oxide_mastery_approach" },
-        { text: "There's still the Gem Cups — extra bonus races for perfect racers", to: "gem_cups" }
-      ],
-      addStats: { trophies: 2, tokens: 4 }
-    },
-
-    gem_cups: {
-      title: "The Gem Cups",
-      tag: "decision",
-      text: `<p>The Gem Cups are bonus cups unlocked only by true completionists. These tracks aren't in the main hub — they're secret circuits only accessible after earning specific token combinations.</p>
-<p>You've earned them.</p>
-<p>The first Gem Cup track is extraordinary — a course built across three different hub world biomes stitched together: icy mountain into jungle canyon into volcanic straightaway.</p>
-<p>You race it perfectly. The crowd — a crowd you didn't even know was watching — goes wild.</p>
-<p>Aku Aku's voice crackles over your kart radio: <em>"You've done it. You've seen everything this world has to offer. Oxide is waiting, but the choice is yours."</em></p>`,
-      choices: [
-        { text: "Head to Oxide Station — you're truly ready", to: "oxide_mastery_approach" },
-        { text: "Race the Gem Cups again — you want to push your times even further", to: "ending_endless" }
-      ],
-      addStats: { trophies: 2, relics: 2, tokens: 3 }
-    },
-
-    oxide_mastery_approach: {
-      title: "The Champion Arrives",
-      tag: "action",
-      text: `<p>You pull into Oxide Station. The alien studies his data pad, then you, then his pad again.</p>
-<p><em>"You have every trophy. Every relic. Every token. The CTR Challenge..."</em> He narrows his eyes. <em>"You are not a mud-dweller. You are something else entirely."</em></p>
-<p>The race begins. You know his weakness — that leftward drift on the final corner. You know every shortcut, every boost pad, every risky line.</p>
-<p>Oxide is still fast. He's the fastest in the galaxy. But for the first time, he's not the most prepared racer on the track.</p>`,
-      choices: [
-        { text: "Race Oxide — show him what a true champion looks like", to: "ending_true_champion" }
-      ]
-    },
-
-    ending_hollow: {
-      title: "Ending A: Hollow Victory",
-      tag: "ending",
-      endingType: "hollow",
-      endingLabel: "Hollow Victory",
-      endingIcon: "🏁",
-      text: `<p>You cross the finish line. First place. The crowd cheers. Oxide powers down his parking lot beam.</p>
-<p><em>"You... won. Inconceivable. Earth is... yours."</em> He rockets back to space.</p>
-<p>The trophy is real. The victory is real. But you remember the relics you skipped, the tokens you never hunted, the CTR letters you never chased.</p>
-<p>You saved Earth. But as the cheering fades, you look back toward the hub worlds — wondering what you missed.</p>
-<p><em>Earth is saved. But your story feels... unfinished.</em></p>`,
-      isEnding: true
-    },
-
-    ending_narrow: {
-      title: "Ending B: Narrow Champion",
-      tag: "ending",
-      endingType: "neutral",
-      endingLabel: "Narrow Champion",
-      endingIcon: "⚡",
-      text: `<p>By the thinnest margin — half a kart-length — you cross the line ahead of Nitros Oxide.</p>
-<p>He climbs out and extends a clawed hand. <em>"You came back and improved. I respect that. Few bother."</em></p>
-<p>Earth is safe. You're declared a champion. Polar waves from the ice. Pura purrs with satisfaction.</p>
-<p>You didn't complete everything — but you learned, adapted, and came back stronger when it counted.</p>
-<p><em>Earth is saved. You became stronger when it mattered most.</em></p>`,
-      isEnding: true
-    },
-
-    ending_true_champion: {
-      title: "Ending C: True Champion",
-      tag: "ending",
-      endingType: "good",
-      endingLabel: "True Champion",
-      endingIcon: "🏆",
-      text: `<p>You win by three full seconds — an eternity in racing.</p>
-<p>Oxide removes his helmet. He's smiling. <em>"In ten thousand years of racing the galaxy, I have never seen a competitor prepare so thoroughly. You are not merely fast. You are a <strong>champion</strong>."</em></p>
-<p>He bows and departs peacefully. The hub worlds erupt. Every racer lines the track as you take your victory lap.</p>
-<p>You didn't just save Earth. You proved that thoroughness and mastery are their own reward.</p>
-<p><em>Earth is saved. And you are its greatest racer.</em></p>`,
-      isEnding: true
-    },
-
-    ending_endless: {
-      title: "Ending D: Endless Challenger",
-      tag: "ending",
-      endingType: "endless",
-      endingLabel: "Endless Challenger",
-      endingIcon: "∞",
-      text: `<p>Oxide is still in orbit. His beam is charged but... he's waiting. Watching.</p>
-<p>You run the Gem Cup track again. 0.4 seconds faster. Again. 0.1 more. You find a new line nobody's ever tried.</p>
-<p>Days pass. Earth is technically in danger. But somehow, everyone feels okay watching you chase perfection.</p>
-<p>Even Oxide leans from his spacecraft window to observe. <em>"Fascinating,"</em> he mutters. <em>"They call this... fun."</em></p>
-<p><em>Earth's fate remains unresolved. You are, however, very fast.</em></p>`,
-      isEnding: true
+  function goto(id) {
+    document.querySelectorAll('.passage').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(id);
+    if (target) {
+      target.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateProgress(id);
     }
   }
-};
 
-let current = story.start;
-let history = [];
-let stats = { trophies: 0, relics: 0, tokens: 0 };
-let passageCount = 0;
-
-function goTo(id) {
-  if (history.length > 0) {
-    const prev = story.passages[current];
-    history.push(prev.title || current);
-  }
-  current = id;
-  render();
-}
-
-function render() {
-  const p = story.passages[current];
-  if (!p) return;
-  passageCount++;
-
-  if (p.addStats) {
-    stats.trophies += p.addStats.trophies || 0;
-    stats.relics   += p.addStats.relics   || 0;
-    stats.tokens   += p.addStats.tokens   || 0;
+  function updateProgress(id) {
+    const lit = progressMap[id] || 1;
+    for (let i = 1; i <= 6; i++) {
+      const dot = document.getElementById('pd' + i);
+      if (dot) dot.classList.toggle('lit', i <= lit);
+    }
   }
 
-  const prog = Math.min(100, Math.round((passageCount / 10) * 100));
-  document.getElementById('progress-bar-fill').style.width = prog + '%';
-  document.getElementById('progress-label').textContent = ⁠ Passage ${passageCount} ⁠;
-
-  const bc = document.getElementById('breadcrumb');
-  if (history.length > 0) {
-    bc.innerHTML = history.slice(-4).map(h =>
-      ⁠ <span class="crumb">${h}</span> ⁠
-    ).join('<span style="color:var(--border);font-size:10px">›</span>');
+  function restart() {
+    goto('p-intro');
   }
 
-  const tag = p.tag || 'action';
-  let tagClass = (tag === 'ending') ? 'ending' : (tag === 'action') ? 'action' : '';
-
-  let endingBadgeHTML = '';
-  if (p.isEnding) {
-    const typeMap = {
-      good:    { cls: 'good',    label: 'Best Ending' },
-      neutral: { cls: 'neutral', label: 'Good Ending' },
-      hollow:  { cls: 'hollow',  label: 'Bittersweet Ending' },
-      endless: { cls: 'endless', label: 'Secret Ending' }
-    };
-    const t = typeMap[p.endingType] || typeMap.neutral;
-    endingBadgeHTML = `
-      <div class="ending-badge ${t.cls}">
-        <span class="ending-icon ${p.endingType === 'good' ? 'trophy-spin' : ''}">${p.endingIcon || '🏁'}</span>
-        <span>${p.endingLabel} — ${t.label}</span>
-      </div>`;
-  }
-
-  const statsHTML = `
-    <div id="stats">
-      <div class="stat"><span class="stat-icon">🏆</span> Trophies: <span class="stat-val">${stats.trophies}</span></div>
-      <div class="stat"><span class="stat-icon">⏱</span> Relics: <span class="stat-val">${stats.relics}</span></div>
-      <div class="stat"><span class="stat-icon">💎</span> Tokens: <span class="stat-val">${stats.tokens}</span></div>
-    </div>`;
-
-  let choicesHTML = '';
-  if (p.isEnding) {
-    choicesHTML = ⁠ <button id="restart-btn" onclick="restart()">▶️ PLAY AGAIN</button> ⁠;
-  } else if (p.choices && p.choices.length > 0) {
-    choicesHTML = ⁠ <div id="choices"> ⁠ +
-      p.choices.map(c =>
-        ⁠ <button class="choice-btn" onclick="goTo('${c.to}')">${c.text}</button> ⁠
-      ).join('') +
-    ⁠ </div> ⁠;
-  }
-
-  document.getElementById('passage-card').innerHTML = `
-    <div class="passage-tag ${tagClass}">${tag}</div>
-    <h2 id="passage-title">${p.title}</h2>
-    ${endingBadgeHTML}
-    <div id="passage-text">${p.text}</div>
-    ${choicesHTML}
-    ${statsHTML}
-  `;
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function restart() {
-  current = story.start;
-  history = [];
-  stats = { trophies: 0, relics: 0, tokens: 0 };
-  passageCount = 0;
-  document.getElementById('breadcrumb').innerHTML = '';
-  document.getElementById('progress-bar-fill').style.width = '0%';
-  render();
-}
-
-history = [];
-render();
+  // Init
+  updateProgress('p-intro');
 </script>
 </body>
 </html>
